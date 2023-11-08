@@ -17,6 +17,7 @@ export default function App() {
       <div style={{ width: 500, height: 500 }}>
         <Tldraw>
           <SaveButton onSave={setSnapshotData} />
+          <LoadButton />
         </Tldraw>
       </div>
       <div style={{ marginLeft: 20, flex: 1 }}>
@@ -46,6 +47,27 @@ function SaveButton({ onSave }) {
       }}
     >
       Save
+    </button>
+  );
+}
+
+function LoadButton() {
+  const editor = useEditor();
+
+  return (
+    <button
+      style={{ position: "absolute", zIndex: 1000, right: 10, top: 50, backgroundColor: "lightgreen" }}
+      onClick={() => {
+        const stringified = localStorage.getItem('my-editor-snapshot');
+        if (stringified) {
+          const snapshot = JSON.parse(stringified);
+          editor.store.loadSnapshot(snapshot);
+        } else {
+          console.log('No saved snapshot found in localStorage.');
+        }
+      }}
+    >
+      Load
     </button>
   );
 }
