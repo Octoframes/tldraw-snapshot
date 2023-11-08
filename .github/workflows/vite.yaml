@@ -30,10 +30,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Conditionally set base in vite.config.ts
+      - name: Conditionally set base in vite.config.js
         run: |
           REPO_NAME="${{ github.event.repository.name }}"
-          CONFIG_FILE='vite.config.ts'
+          CONFIG_FILE='vite.config.js'
           BASE_PATTERN="base: '/$REPO_NAME/',"
 
           if ! grep -q "base:" "$CONFIG_FILE"; then
