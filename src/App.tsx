@@ -5,6 +5,31 @@ import { useState } from "react";
 export default function App() {
   const [snapshotData, setSnapshotData] = useState("");
 
+  // This function will be called whenever there is a change in the textarea.
+  const handleTextChange = (event) => {
+    const newText = event.target.value;
+    try {
+      const snapshot = JSON.parse(newText);
+      // Make sure to validate if the newText is a valid JSON and has the right structure for Tldraw
+      // Assuming here it is valid, we update the snapshotData state.
+      setSnapshotData(newText);
+    } catch (error) {
+      // If JSON.parse fails, it means the text is not valid JSON
+      // Depending on how you want to handle this, you may want to show an error to the user
+      console.error('Invalid JSON:', error);
+    }
+  };
+
+  // A function to load snapshot from the textarea
+  const loadSnapshotFromString = (editor, snapshotString) => {
+    try {
+      const snapshot = JSON.parse(snapshotString);
+      editor.store.loadSnapshot(snapshot);
+    } catch (error) {
+      console.error('Failed to load snapshot:', error);
+    }
+  };
+
   return (
     <div
       style={{
@@ -17,14 +42,15 @@ export default function App() {
       <div style={{ width: 500, height: 500 }}>
         <Tldraw>
           <SaveButton onSave={setSnapshotData} />
-          <LoadButton />
+          <LoadButton onLoad={(editor) => loadSnapshotFromString(editor, snapshotData)} />
         </Tldraw>
       </div>
       <div style={{ marginLeft: 20, flex: 1 }}>
         <textarea
           style={{ width: "100%", height: 500 }}
           value={snapshotData}
-          readOnly
+          onChange={handleTextChange}  // Add the onChange event listener
+          // Removing readOnly since we want to be able to edit the text
         />
       </div>
     </div>
@@ -51,20 +77,14 @@ function SaveButton({ onSave }) {
   );
 }
 
-function LoadButton() {
+function LoadButton({ onLoad }) {
   const editor = useEditor();
 
   return (
     <button
       style={{ position: "absolute", zIndex: 1000, right: 10, top: 50, backgroundColor: "lightgreen" }}
       onClick={() => {
-        const stringified = localStorage.getItem('my-editor-snapshot');
-        if (stringified) {
-          const snapshot = JSON.parse(stringified);
-          editor.store.loadSnapshot(snapshot);
-        } else {
-          console.log('No saved snapshot found in localStorage.');
-        }
+        onLoad(editor);
       }}
     >
       Load
