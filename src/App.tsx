@@ -24,7 +24,7 @@ function SaveButton() {
 
   return (
     <button
-      style={{ position: "relative", zIndex: 1000 }}
+      style={{ position: "relative", zIndex: 1000 , left: 400, top: 0, backgroundColor: "lightblue" }}
       onClick={() => {
         const snapshot = editor.store.getSnapshot();
         const stringified = JSON.stringify(snapshot);
