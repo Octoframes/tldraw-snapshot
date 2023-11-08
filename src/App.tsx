@@ -12,20 +12,25 @@ export default function App() {
         left: 0,
       }}
     >
-      <Tldraw />
-      <SaveButton />
+      <Tldraw>
+        <SaveButton />
+      </Tldraw>
     </div>
   );
 }
 
 function SaveButton() {
   const editor = useEditor();
+
   return (
     <button
+      style={{ position: "relative", zIndex: 1000 }}
       onClick={() => {
         const snapshot = editor.store.getSnapshot();
         const stringified = JSON.stringify(snapshot);
         localStorage.setItem("my-editor-snapshot", stringified);
+        console.log("Saved!");
+        console.log(stringified);
       }}
     >
       Save

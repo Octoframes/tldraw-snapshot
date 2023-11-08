@@ -21,45 +21,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    # Set the repository name as the GITHUB_ACTIONS_BASE environment variable
+    env:
+      GITHUB_ACTIONS_BASE: ${{ github.repository }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Conditionally set base in vite.config.ts
-        run: |
-          REPO_NAME="${{ github.event.repository.name }}"
-          CONFIG_FILE='vite.config.ts'
-          BASE_PATTERN="base: '/$REPO_NAME/',"
-
-          if ! grep -q "base:" "$CONFIG_FILE"; then
-            echo "Base property not found. Setting it to '$BASE_PATTERN'"
-            # Use sed to insert the base property directly under the export default defineConfig({
-            sed -i "/export default defineConfig({/a \ \ $BASE_PATTERN" $CONFIG_FILE
-          else
-            echo "Base property already set in $CONFIG_FILE"
-          fi
-
+      
       - name: Set up Node
         uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: 'npm'
+      
       - name: Install dependencies
         run: npm install
+      
       - name: Build
         run: npm run build
+        # Provide the environment variable specifically for the build step
+        env:
+          GITHUB_ACTIONS_BASE: ${{ env.GITHUB_ACTIONS_BASE }}
+      
       - name: Setup Pages
         uses: actions/configure-pages@v3
+      
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          # Upload dist repository
           path: './dist'
+      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
